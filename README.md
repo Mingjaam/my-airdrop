@@ -49,7 +49,7 @@ Opens a beautiful web interface anyone can access by scanning a QR code. Upload 
 - **Folder download** — zip and download entire folders in one tap
 - **Multi-select** — select multiple files and download as a single zip
 - **QR code** — instantly connect any device with a camera
-- **Public tunnel** — share outside your local network via a public URL
+- **Public tunnel** — share outside your local network via a public URL, works on any network including WiFi
 - **Mobile-optimized** — large touch targets, responsive layout, dark UI
 - **Safety limits** — warns on large directories, hard stops at 5000 files / 5 GB
 
@@ -86,6 +86,10 @@ Public   https://random-words.trycloudflare.com
 ```
 
 Share the URL with whoever you want to give access. No password required — just open and go.
+
+- Powered by [Cloudflare Quick Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/)
+- Works on any network including WiFi (uses TCP 443, not blocked by routers)
+- Auto-reconnects if the tunnel drops
 
 ## Install globally
 
