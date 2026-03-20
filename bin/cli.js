@@ -4,10 +4,9 @@
 const path = require('path');
 const os   = require('os');
 const fs   = require('fs');
-const https = require('https');
 const chalk = require('chalk');
 const qrcode = require('qrcode-terminal');
-const localtunnel = require('localtunnel');
+const { Tunnel } = require('cloudflared');
 const { createServer } = require('../src/server');
 
 // ── Parse args ───────────────────────────────────────
@@ -209,25 +208,19 @@ async function main() {
     if (usePublic) {
       process.stdout.write('  ' + chalk.gray('Public   ') + chalk.gray('connecting...'));
       try {
-        const tunnel = await localtunnel({ port });
-        publicURL = tunnel.url;
+        const tunnel = Tunnel.quick(`http://localhost:${port}`);
+        publicURL = await new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error('timeout')), 20000);
+          tunnel.once('url', url => { clearTimeout(timer); resolve(url); });
+          tunnel.once('error', err => { clearTimeout(timer); reject(err); });
+        });
         process.stdout.write('\r  ' + chalk.gray('Public   ') + chalk.bold.cyan(publicURL) + '\n');
 
-        // Fetch tunnel password (public IP)
-        https.get('https://loca.lt/mytunnelpassword', res => {
-          let data = '';
-          res.on('data', c => data += c);
-          res.on('end', () => {
-            const pw = data.trim();
-            if (pw) console.log('  ' + chalk.gray('Password ') + chalk.bold.yellow(pw) + chalk.gray('  (share this with visitors)'));
-          });
-        }).on('error', () => {});
-
-        tunnel.on('close', () => {
+        tunnel.on('exit', () => {
           console.log('\n' + chalk.yellow('  ⚠  Public tunnel closed'));
         });
       } catch {
-        process.stdout.write('\r  ' + chalk.yellow('Public   tunnel failed (no internet?)') + '\n');
+        process.stdout.write('\r  ' + chalk.yellow('⚠  Public tunnel failed (no internet?)') + '\n');
       }
     }
 

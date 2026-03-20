@@ -28,8 +28,7 @@ Opens a beautiful web interface anyone can access by scanning a QR code. Upload 
 
   Local    http://localhost:3000
   Network  http://192.168.1.5:3000
-  Public   https://swift-pandas-give.loca.lt
-  Password 220.69.155.13  (share this with visitors)
+  Public   https://random-words.trycloudflare.com
 
   [QR CODE]
 
@@ -68,7 +67,7 @@ Or pass options directly:
 # Serve a specific folder
 npx my-airdrop ./photos
 
-# Share outside local network (generates a public URL + password)
+# Share outside local network (generates a public Cloudflare URL)
 npx my-airdrop --public
 
 # Custom port
@@ -80,14 +79,13 @@ npx my-airdrop --no-upload
 
 ## Public mode
 
-With `--public`, a tunnel URL is created so anyone on the internet can access your files:
+With `--public`, a Cloudflare Quick Tunnel is created so anyone on the internet can access your files:
 
 ```
-Public   https://swift-pandas-give.loca.lt
-Password 220.69.155.13
+Public   https://random-words.trycloudflare.com
 ```
 
-Share both the **URL** and **Password** with whoever you want to give access. They'll need to enter the password on first visit.
+Share the URL with whoever you want to give access. No password required — just open and go.
 
 ## Install globally
 
