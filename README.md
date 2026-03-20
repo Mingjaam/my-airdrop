@@ -1,14 +1,25 @@
 # my-airdrop
 
-Share files over your local network — like AirDrop, but from your terminal.
+Share files over your network — like AirDrop, but from your terminal.
 
 ```
 npx my-airdrop
 ```
 
-Opens a web interface on your local network. Anyone on the same WiFi can upload and download files by scanning a QR code — no app, no account, no cable needed.
+Opens a beautiful web interface anyone can access by scanning a QR code. Upload and download files between your computer and any device — no app, no account, no cable.
 
 ## Preview
+
+```
+  ◆ my-airdrop
+
+  How do you want to share?
+
+  ●  Local   — same WiFi only
+  ○  Public  — accessible from anywhere
+
+  ↑↓ to move  ·  Enter to select
+```
 
 ```
   ◆ my-airdrop
@@ -17,10 +28,12 @@ Opens a web interface on your local network. Anyone on the same WiFi can upload 
 
   Local    http://localhost:3000
   Network  http://192.168.1.5:3000
+  Public   https://swift-pandas-give.loca.lt
+  Password 220.69.155.13  (share this with visitors)
 
   [QR CODE]
 
-  Scan QR or open the Network URL on any device
+  QR → public URL (works outside local network)
   Ctrl+C to stop
 
   ────────────────────────────────────────────────
@@ -31,22 +44,32 @@ Opens a web interface on your local network. Anyone on the same WiFi can upload 
 
 ## Features
 
-- **Download** — browse and download files from any device on the network
+- **Interactive mode** — arrow key menu to choose Local or Public on startup
+- **Download** — browse and download files from any device
 - **Upload** — send files from your phone to your computer (tap or drag & drop)
 - **Folder download** — zip and download entire folders in one tap
-- **Multi-select** — select multiple files and download as a zip
-- **QR code** — instantly connect with your phone camera
+- **Multi-select** — select multiple files and download as a single zip
+- **QR code** — instantly connect any device with a camera
+- **Public tunnel** — share outside your local network via a public URL
 - **Mobile-optimized** — large touch targets, responsive layout, dark UI
-- **Safety limits** — warns on large directories, hard limit at 5000 files / 5 GB
+- **Safety limits** — warns on large directories, hard stops at 5000 files / 5 GB
 
 ## Usage
 
-```bash
-# Serve current directory
-npx my-airdrop
+Just run it and pick an option:
 
+```bash
+npx my-airdrop
+```
+
+Or pass options directly:
+
+```bash
 # Serve a specific folder
 npx my-airdrop ./photos
+
+# Share outside local network (generates a public URL + password)
+npx my-airdrop --public
 
 # Custom port
 npx my-airdrop --port 8080
@@ -54,6 +77,17 @@ npx my-airdrop --port 8080
 # Read-only (disable uploads)
 npx my-airdrop --no-upload
 ```
+
+## Public mode
+
+With `--public`, a tunnel URL is created so anyone on the internet can access your files:
+
+```
+Public   https://swift-pandas-give.loca.lt
+Password 220.69.155.13
+```
+
+Share both the **URL** and **Password** with whoever you want to give access. They'll need to enter the password on first visit.
 
 ## Install globally
 
@@ -65,7 +99,8 @@ my-airdrop
 ## Requirements
 
 - Node.js >= 14
-- Both devices on the same WiFi network
+- For local mode: both devices on the same WiFi
+- For public mode: internet connection
 
 ## License
 
