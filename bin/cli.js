@@ -222,7 +222,7 @@ async function main() {
 
         // 3. 터널 시작
         const startTunnel = () => new Promise((resolve, reject) => {
-          const t = Tunnel.quick(`http://localhost:${port}`);
+          const t = Tunnel.quick(`http://localhost:${port}`, { '--protocol': 'http2' });
           const timer = setTimeout(() => reject(new Error('timeout')), 20000);
           t.once('url', url => { clearTimeout(timer); resolve({ tunnel: t, url }); });
           t.once('error', err => { clearTimeout(timer); reject(err); });
