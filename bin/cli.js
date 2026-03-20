@@ -194,6 +194,17 @@ async function main() {
     console.log(`  ${chalk.gray(time)}  ${arrow}  ${chalk.gray(ip.padEnd(15))}  ${label}${sizeStr}`);
   });
 
+  server.on('error', e => {
+    if (e.code === 'EADDRINUSE') {
+      console.log('\n  ' + chalk.yellow(`⚠  Port ${port} in use — trying ${port + 1}...`));
+      port += 1;
+      server.listen(port, '0.0.0.0');
+    } else {
+      console.error(chalk.red('  Error: ' + e.message));
+      process.exit(1);
+    }
+  });
+
   server.listen(port, '0.0.0.0', async () => {
     console.clear();
     console.log('');
