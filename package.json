@@ -1,6 +1,6 @@
 {
   "name": "my-airdrop",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Share files over local network — like AirDrop but from your terminal",
   "keywords": [
     "file-sharing",
