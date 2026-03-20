@@ -4,9 +4,10 @@
 const path = require('path');
 const os   = require('os');
 const fs   = require('fs');
+const { execSync } = require('child_process');
 const chalk = require('chalk');
 const qrcode = require('qrcode-terminal');
-const { Tunnel } = require('cloudflared');
+const { Tunnel, install, bin: cfBin } = require('cloudflared');
 const { createServer } = require('../src/server');
 
 // ── Parse args ───────────────────────────────────────
@@ -208,19 +209,43 @@ async function main() {
     if (usePublic) {
       process.stdout.write('  ' + chalk.gray('Public   ') + chalk.gray('connecting...'));
       try {
-        const tunnel = Tunnel.quick(`http://localhost:${port}`);
-        publicURL = await new Promise((resolve, reject) => {
+        // 1. 바이너리 없으면 자동 설치
+        if (!fs.existsSync(cfBin)) {
+          process.stdout.write('\r  ' + chalk.gray('Public   ') + chalk.gray('installing cloudflared...'));
+          await install(cfBin);
+        }
+
+        // 2. macOS quarantine 제거 (Gatekeeper 차단 방지)
+        if (process.platform === 'darwin') {
+          try { execSync(`xattr -d com.apple.quarantine "${cfBin}" 2>/dev/null`); } catch {}
+        }
+
+        // 3. 터널 시작
+        const startTunnel = () => new Promise((resolve, reject) => {
+          const t = Tunnel.quick(`http://localhost:${port}`);
           const timer = setTimeout(() => reject(new Error('timeout')), 20000);
-          tunnel.once('url', url => { clearTimeout(timer); resolve(url); });
-          tunnel.once('error', err => { clearTimeout(timer); reject(err); });
+          t.once('url', url => { clearTimeout(timer); resolve({ tunnel: t, url }); });
+          t.once('error', err => { clearTimeout(timer); reject(err); });
         });
+
+        const { tunnel, url } = await startTunnel();
+        publicURL = url;
         process.stdout.write('\r  ' + chalk.gray('Public   ') + chalk.bold.cyan(publicURL) + '\n');
 
-        tunnel.on('exit', () => {
-          console.log('\n' + chalk.yellow('  ⚠  Public tunnel closed'));
+        // 4. 터널 끊기면 자동 재연결
+        tunnel.on('exit', async () => {
+          console.log('\n' + chalk.yellow('  ⚠  Public tunnel disconnected — reconnecting...'));
+          try {
+            const { tunnel: t2, url: u2 } = await startTunnel();
+            console.log('  ' + chalk.gray('Public   ') + chalk.bold.cyan(u2) + chalk.gray('  (new URL)'));
+            t2.on('exit', () => console.log('\n' + chalk.yellow('  ⚠  Public tunnel closed')));
+          } catch {
+            console.log(chalk.yellow('  ⚠  Reconnect failed — use --public to restart'));
+          }
         });
-      } catch {
-        process.stdout.write('\r  ' + chalk.yellow('⚠  Public tunnel failed (no internet?)') + '\n');
+      } catch (e) {
+        const reason = e.message === 'timeout' ? 'timed out' : (e.message || 'no internet?');
+        process.stdout.write('\r  ' + chalk.yellow(`⚠  Public tunnel failed (${reason})`) + '\n');
       }
     }
 
